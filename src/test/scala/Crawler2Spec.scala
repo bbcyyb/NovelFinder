@@ -13,8 +13,16 @@ class Crawler2Spec extends FunSpec{
       val startPage = "https://www.google.com"
       val obj = new Crawler2(startPage)
       val result = obj.getPageFromRemote(startPage)
-      
+
       assert(result != null)
+    }
+
+    it("parse links from html contenT"){
+      val startPage = "https://www.google.com"
+      val obj = new Crawler2(startPage)
+      obj.parseLinks(startPage)
+
+      assert(obj != null)
     }
   }
 
