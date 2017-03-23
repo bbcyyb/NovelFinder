@@ -5,16 +5,9 @@ object Main {
     val url = "http://www.7caimi.com/xiaoshuo/13/"
 
     val crawler = new Crawler2(url)
-    // var result = crawler.getPageFromRemote(url)
-    // crawler.fetchLinks()
-    // println(result)
+    var result = crawler.getPageFromRemote(url)
+    val ss = crawler.fetchLinks(result._2)
+    println(ss.getClass)
 
-    (() => {
-      var list = for(i <- 1 until 10) {
-        i
-      }
-
-      println(list)
-    })()
   }
 }

@@ -24,15 +24,15 @@ class Crawler2(startPage:String, outputPath: String = "./crawl.txt", filter: (St
         // storeContent(linkAndContent, outputPath);
     }
 
-    // def fetchLinks(html: String): Set[String] = {
-    //     var list = for(m <- linkRegex.findAllIn(html).matchData if (m.group(1) != null || m.group(3) != null)) {
-    //       if (m.group(1) != null) m.group(2) else m.group(4)
-    //     }
-    //
-    //     list.filter {
-    //       link => !link.startsWith("#") && !link.startsWith("javascript:") && link != "" && !link.startsWith("mailto:")
-    //     }.toSet
-    // }
+    def fetchLinks(html: String) = {
+        var list = for(m <- linkRegex.findAllIn(html).matchData if (m.group(1) != null || m.group(3) != null)) yield {
+          if (m.group(1) != null) m.group(2) else m.group(4)
+        }
+
+        list.filter {
+          link => !link.startsWith("#") && !link.startsWith("javascript:") && link != "" && !link.startsWith("mailto:")
+        }.toSet
+    }
 
     def getPageFromRemote(url: String): (Int, String, Map[String, String]) = {
         var uri = new URL(url)
