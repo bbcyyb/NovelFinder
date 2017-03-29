@@ -4,11 +4,10 @@ organization := "org.kevin.app"
 
 version := "0.0.1"
 
-scalaVersion := "2.11.5"
+scalaVersion := "2.12.1"
 
 libraryDependencies ++= Seq(
-  "org.scalatest" %% "scalatest" % "2.2.1" % "test" withSources() withJavadoc(),
-  "org.scalacheck" %% "scalacheck" % "1.12.1" % "test" withSources() withJavadoc()
+  "org.scalatest" % "scalatest_2.12" % "3.0.1"
 )
 
 initialCommands := "import org.kevin.app.bookcrawler._"
