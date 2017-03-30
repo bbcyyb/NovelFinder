@@ -71,7 +71,7 @@ class Crawler2(scopeFilter: (String => Boolean) = (url: String) => true){
         return (status, data, headers)
     }
 
-    def parseCrawlLinks(parentUrl: String, html: String) = {
+    def gainCrawlLinks(parentUrl: String, html: String) = {
         val baseHost = getHostBase(parentUrl)
         val links = fetchLinks(html).map(
                 link => 
@@ -90,7 +90,7 @@ class Crawler2(scopeFilter: (String => Boolean) = (url: String) => true){
             links
     }
 
-    def doCrawlPages(basicUrl: String): mutable.TreeMap[String, String] = {
+    def crawl(basicUrl: String): mutable.TreeMap[String, String] = {
         //创建线程池
         val threadPool: ThreadPoolExecutor = new ThreadPoolExecutor(10, 200, 3
                                                 , TimeUnit.SECONDS
@@ -116,7 +116,7 @@ class Crawler2(scopeFilter: (String => Boolean) = (url: String) => true){
                         threadPool.execute(future)
                         //获取网页信息
                         val pageContent = future.get(this.READ_TIME_OUT, TimeUnit.SECONDS)._2
-                        val tempLinks = parseCrawlLinks(link, pageContent)
+                        val tempLinks = gainCrawlLinks(link, pageContent)
                         tempLinks.filter(!crawledPool.contains(_)).foreach(linksStack.push(_))
                         result += (link -> pageContent)
                     }   
@@ -129,7 +129,12 @@ class Crawler2(scopeFilter: (String => Boolean) = (url: String) => true){
         result
     }
 
-    def storeContent(linksAndConetnt: mutable.TreeMap[String, String], outputPath: String): Unit = {
+    def parse(linksAndContent: mutable.TreeMap[String, String], extractTitleAndContent: String => String) = {
+        //遍历所有的html内容，按照规则解析，生成干净的文本内容
+        linksAndContent.foreach(entry => {linksAndContent += (entry._1 -> extractTitleAndContent(entry._2))}) 
+    }
+
+    def store(linksAndConetnt: mutable.TreeMap[String, String], outputPath: String): Unit = {
         val writer = new BufferedWriter(new FileWriter(new File(outputPath)))
         val values = linksAndConetnt.valuesIterator
         while(values.hasNext){

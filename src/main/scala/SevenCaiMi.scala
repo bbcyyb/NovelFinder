@@ -1,9 +1,7 @@
 package org.kevin.app.bookcrawler
 
 class SevenCaiMi(novelTitleSet: Set[String]) {
-    class ServenCaiMiInner(t: String, b: String) {
-        private val title = t
-        private val basicUrl = b
+    class SevenCaiMiInner(title: String, basicUrl: String) {
         private val outputPath = s"/Users/ky54/Documents/Novel/${title}.txt"
 
         def output = {
@@ -17,11 +15,11 @@ class SevenCaiMi(novelTitleSet: Set[String]) {
         def processCore = {
             val crawler = new Crawler2(this.scopeFilter)
             //抓取所有的链接和html内容
-            val linksAndContent = crawler.doCrawlPages(basicUrl)
-            //遍历所有的html内容，按照规则解析，生成干净的文本内容
-            linksAndContent.foreach(entry => {linksAndContent += (entry._1 -> extractTitleAndContent(entry._2))})
+            val linksAndContent = crawler.crawl(basicUrl)
+            //将获取html中文本内容抽取出来
+            crawler.parse(linksAndContent, this.extractTitleAndContent)
             //将文本内容存储在文件中
-            crawler.storeContent(linksAndContent, this.outputPath)
+            crawler.store(linksAndContent, this.outputPath)
         }
 
         def extractTitleAndContent(html:String): String = {
@@ -34,16 +32,16 @@ class SevenCaiMi(novelTitleSet: Set[String]) {
                 || contentStartIndex < 0
                 || contentEndIndex < 0){
                 return ""
+            }
+
+            val title = html.substring(h1StartIndex + 4, h1EndIndex)
+            val content = html.substring(contentStartIndex + 5, contentEndIndex)
+                            .replaceAll("<br />","\n")
+                            .replaceAll("<br />|&nbsp;+|\t+", "")
+                            .replaceAll("""<[a-zA-Z]+(\s+[a-zA-Z]+\s*=\s*("([^"]*)"|'([^']*)'))*\s*/>""", "")
+
+            s"${title}\n${content}\n\n"
         }
-
-        val title = html.substring(h1StartIndex + 4, h1EndIndex)
-        val content = html.substring(contentStartIndex + 5, contentEndIndex)
-                        .replaceAll("<br />","\n")
-                        .replaceAll("<br />|&nbsp;+|\t+", "")
-                        .replaceAll("""<[a-zA-Z]+(\s+[a-zA-Z]+\s*=\s*("([^"]*)"|'([^']*)'))*\s*/>""", "")
-
-        s"${title}\n${content}\n\n"
-    }
     }
 
     private val novelMap: Map[String, String] = Map(
@@ -53,10 +51,10 @@ class SevenCaiMi(novelTitleSet: Set[String]) {
                                 ,"十方神王" -> "http://www.7caimi.com/xiaoshuo/11/")
     private var novelNodeSet: Set[ServenCaiMiInner] = novelTitleSet.filter{ novelMap.contains(_) }
                                                                    .map { novelTitle => 
-                                                                            new ServenCaiMiInner(novelTitle, novelMap(novelTitle)) 
+                                                                            new SevenCaiMiInner(novelTitle, novelMap(novelTitle)) 
                                                                         }
 
     def process = {
-        novelNodeSet.foreach(_.output)
+        novelNodeSet.foreach(_.processCore)
     }
 }
