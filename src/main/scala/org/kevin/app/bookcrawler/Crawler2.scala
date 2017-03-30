@@ -6,7 +6,7 @@ import scala.collection.JavaConversions._
 import java.util.HashSet
 import scala.collection.mutable
 
-class Crawler2(startPage:String, outputPath: String = "./crawl.txt", filter: (String => Boolean) = (url: String) => true){
+class Crawler2(scopeFilter: (String => Boolean) = (url: String) => true){
 
   private val crawledPool = new HashSet[String]
 
@@ -15,15 +15,6 @@ class Crawler2(startPage:String, outputPath: String = "./crawl.txt", filter: (St
   private val CONN_TIME_OUT = 10 * 1000
 
   private val READ_TIME_OUT = 15 * 1000
-
-    def crawl(): Unit = {
-
-        val linksAndContent = doCrawlPages(startPage)
-        
-        linksAndContent.foreach(entry => {linksAndContent += (entry._1 -> extractTitleAndContent(entry._2))})
-        
-        storeContent(linksAndContent, outputPath)
-    }
 
     def getHostBase(url: String) = {
         val uri = new URL(url)
@@ -92,14 +83,14 @@ class Crawler2(startPage:String, outputPath: String = "./crawl.txt", filter: (St
                         parentUrl.substring(0, index) + "/" + link
                 }
             ).filter {
-                link => !crawledPool.contains(link) && this.filter(link)
+                link => !crawledPool.contains(link) && this.scopeFilter(link)
             }
 
             println("find " + links.size + "links at page " + parentUrl)
             links
     }
 
-    def doCrawlPages(pageUrl: String): mutable.TreeMap[String, String] = {
+    def doCrawlPages(basicUrl: String): mutable.TreeMap[String, String] = {
         //创建线程池
         val threadPool: ThreadPoolExecutor = new ThreadPoolExecutor(10, 200, 3
                                                 , TimeUnit.SECONDS
@@ -113,8 +104,7 @@ class Crawler2(startPage:String, outputPath: String = "./crawl.txt", filter: (St
         val result= new mutable.TreeMap[String, String]()
         //用于存储每个页面符合条件的url, 该栈共享于多个线程
         val linksStack = mutable.Stack[String]()
-        //第一个url压栈
-        linksStack.push(pageUrl)
+        linksStack.push(basicUrl)
 
         try {
                 //线程池中还有任务在进行
@@ -130,31 +120,13 @@ class Crawler2(startPage:String, outputPath: String = "./crawl.txt", filter: (St
                         tempLinks.filter(!crawledPool.contains(_)).foreach(linksStack.push(_))
                         result += (link -> pageContent)
                     }   
-                    Thread.sleep(200)
+                    Thread.sleep(100)
                 } while(threadPool.getActiveCount != 0)
             } finally {
                 threadPool.shutdown()
             }
 
         result
-    }
-
-    def extractTitleAndContent(html:String): String = {
-        val h1StartIndex = html.indexOf("<h1>")
-        val h1EndIndex = html.indexOf("</h1>", h1StartIndex)
-        val contentStartIndex = html.indexOf("<div>", h1EndIndex)
-        val contentEndIndex = html.indexOf("</div>", contentStartIndex)
-        if(h1StartIndex < 0 
-            || h1EndIndex < 0
-            || contentStartIndex < 0
-            || contentEndIndex < 0){
-            return ""
-        }
-
-        val title = html.substring(h1StartIndex + 4, h1EndIndex)
-        val content = html.substring(contentStartIndex + 5, contentEndIndex).replaceAll("<br />","\n") .replaceAll("<br />|&nbsp;+|\t+", "")
-
-        s"${title}\n${content}\n\n"
     }
 
     def storeContent(linksAndConetnt: mutable.TreeMap[String, String], outputPath: String): Unit = {
