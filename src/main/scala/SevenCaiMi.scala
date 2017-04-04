@@ -13,9 +13,12 @@ class SevenCaiMi(novelTitleSet: Set[String]) {
         }
 
         def processCore = {
-            val crawler = new Crawler2(this.scopeFilter)
+            val crawler = new Crawler(this.scopeFilter)
             //抓取所有的链接和html内容
+            val startTime = Common.nanoTime
             val linksAndContent = crawler.crawl(basicUrl)
+            val endTime: Float = (Common.nanoTime - startTime) / 1000000
+            println(s"Total time: ${endTime} ms")
             //将获取html中文本内容抽取出来
             crawler.parse(linksAndContent, this.extractTitleAndContent)
             //将文本内容存储在文件中
@@ -49,7 +52,7 @@ class SevenCaiMi(novelTitleSet: Set[String]) {
                                 ,"斗罗大陆" -> "http://www.7caimi.com/xiaoshuo/15/"
                                 ,"莽荒纪" -> "http://www.7caimi.com/xiaoshuo/14/"
                                 ,"十方神王" -> "http://www.7caimi.com/xiaoshuo/11/")
-    private var novelNodeSet: Set[ServenCaiMiInner] = novelTitleSet.filter{ novelMap.contains(_) }
+    private var novelNodeSet: Set[SevenCaiMiInner] = novelTitleSet.filter{ novelMap.contains(_) }
                                                                    .map { novelTitle => 
                                                                             new SevenCaiMiInner(novelTitle, novelMap(novelTitle)) 
                                                                         }

@@ -9,7 +9,7 @@ abstract class AbstractWebsite(novelTitleSet: Set[String]) {
         }
 
         def processCore = {
-            val crawler = new Crawler2(this.scopeFilter)
+            val crawler = new Crawler(this.scopeFilter)
             //抓取所有的链接和html内容
             val linksAndContent = crawler.crawl(basicUrl)
             //将获取html中文本内容抽取出来

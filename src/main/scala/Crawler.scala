@@ -6,7 +6,7 @@ import scala.collection.JavaConversions._
 import java.util.HashSet
 import scala.collection.mutable
 
-class Crawler2(scopeFilter: (String => Boolean) = (url: String) => true){
+class Crawler(scopeFilter: (String => Boolean) = (url: String) => true){
 
   private val crawledPool = new HashSet[String]
 
@@ -86,11 +86,11 @@ class Crawler2(scopeFilter: (String => Boolean) = (url: String) => true){
                 link => !crawledPool.contains(link) && this.scopeFilter(link)
             }
 
-            println("find " + links.size + "links at page " + parentUrl)
+            //println("find " + links.size + "links at page " + parentUrl)
             links
     }
 
-    def crawl(basicUrl: String): mutable.TreeMap[String, String] = {
+    def crawl(basicUrl: String): mutable.HashMap[String, String] = {
         //创建线程池
         val threadPool: ThreadPoolExecutor = new ThreadPoolExecutor(10, 200, 3
                                                 , TimeUnit.SECONDS
@@ -101,7 +101,7 @@ class Crawler2(scopeFilter: (String => Boolean) = (url: String) => true){
         threadPool.allowCoreThreadTimeOut(true)
         threadPool.setKeepAliveTime(6, TimeUnit.SECONDS)
         //存储该函数的返回值
-        val result= new mutable.TreeMap[String, String]()
+        val result= new mutable.HashMap[String, String]()
         //用于存储每个页面符合条件的url, 该栈共享于多个线程
         val linksStack = mutable.Stack[String]()
         linksStack.push(basicUrl)
@@ -129,17 +129,24 @@ class Crawler2(scopeFilter: (String => Boolean) = (url: String) => true){
         result
     }
 
-    def parse(linksAndContent: mutable.TreeMap[String, String], extractTitleAndContent: String => String) = {
+    def parse(linksAndContent: mutable.HashMap[String, String], extractTitleAndContent: String => String) = {
         //遍历所有的html内容，按照规则解析，生成干净的文本内容
         linksAndContent.foreach(entry => {linksAndContent += (entry._1 -> extractTitleAndContent(entry._2))}) 
     }
 
-    def store(linksAndConetnt: mutable.TreeMap[String, String], outputPath: String): Unit = {
+    def store(linksAndContent: mutable.HashMap[String, String], outputPath: String): Unit = {
         val writer = new BufferedWriter(new FileWriter(new File(outputPath)))
-        val values = linksAndConetnt.valuesIterator
-        while(values.hasNext){
-            writer.write(values.next())
+
+        var itor = linksAndContent.keySet.toList.sorted.iterator
+        while(itor.hasNext) {
+            val value = linksAndContent.get(itor.next).get
+            writer.write(value)
         }
+
+        // val values = linksAndContent.valuesIterator
+        // while(values.hasNext){
+        //     writer.write(values.next())
+        // }
 
         writer.close()
     }
