@@ -5,11 +5,11 @@ class Crawler2 {
 
     }
 
-    def parse() => {
+    def parse() = {
 
     }
 
-    def store() => {
-        
+    def store() = {
+
     }
 }
