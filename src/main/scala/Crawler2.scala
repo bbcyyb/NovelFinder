@@ -7,40 +7,37 @@ import org.jsoup.Jsoup
 
 class Crawler2 {
 
-    private val protocol = "http://"
-
     private def getHostBase(url: String) = {
         val uri = new URL(url)
         val portPart = if(uri.getPort() == -1 || uri.getPort() == 80) "" else ":" + uri.getPort()
         uri.getProtocol() + "://" + uri.getHost() + portPart
     }
 
-    def crawlAndParse(basicUrl: String, linkFilter: (String => Boolean) = (url: String) => true): (String, String, List[String]) = {
+    def crawl(basicUrl: String) = {
+        val html = Jsoup.connect(basicUrl).get().html
+        val host = getHostBase(basicUrl)
+        (host, html)
+    }
 
-        val html = Jsoup.connect(basicUrl).get()
+    def parse(hostName: String, htmlString: String, linkFilter: (String => Boolean) = (url: String) => true): (String, String, List[String]) = {
 
+        val html = Jsoup.parse(htmlString)
         val c = html.select("div.chapter").first
-        var title = ""
-        var content = ""
-        if(c != null) {
-            val title = c.select("h1").first.text
-            val content = c.select("div").first.html
-        }
+        val title = if(c != null) c.select("h1").first.text else ""
+        val content = if(c != null) c.select("div").first.html else ""
         val alinks = html.select("a[href]").map(_.attr("href")).filter(
             link => !link.startsWith("javascript:")
             ).map(
             link =>
             link match {
-                case link if link.startsWith("/") => getHostBase(basicUrl) + link
+                case link if link.startsWith("//") => "http://" + link
+                case link if link.startsWith("/") => hostName + link
                 case link if link.startsWith("http://") || link.startsWith("https://") => link
                 case _ => link
             }
             ).filter(linkFilter).toList
         
-
-        //.map(_.attr("href")).toList
-
-        return (title, "content", alinks)
+        return (title, content, alinks)
     }
 
     def store = {

@@ -4,7 +4,8 @@ object MovelFinder {
   def main(args: Array[String]): Unit = {
     val crawler = new Crawler2
     val basicUrl = "http://www.7caimi.com/xiaoshuo/13/"
-    val result = crawler.crawlAndParse(basicUrl, f => f.contains(basicUrl))
+    val crawlResult = crawler.crawl(basicUrl)
+    val result = crawler.parse(crawlResult._1, crawlResult._2, f => f.contains(basicUrl) && f != basicUrl)
     println(result)
     
     //new SevenCaiMi(Set("大主宰")).process
