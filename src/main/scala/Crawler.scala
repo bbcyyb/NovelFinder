@@ -77,7 +77,7 @@ class Crawler(scopeFilter: (String => Boolean) = (url: String) => true){
                 link => 
                 link match {
                     case link if link.startsWith("/") => baseHost + link
-                    case link if link.startsWith("http:") || link.startsWith("https://") => link
+                    case link if link.startsWith("http:") || link. startsWith("https://") => link
                     case _ =>
                         val index = parentUrl.lastIndexOf("/")
                         parentUrl.substring(0, index) + "/" + link
@@ -112,7 +112,7 @@ class Crawler(scopeFilter: (String => Boolean) = (url: String) => true){
                     //link栈不空
                     while(!linksStack.isEmpty) {
                         val link = linksStack.pop()
-                        val future = new FutureTask[(Int, String, Map[String, String])](() => getPageFromRemote(link))
+                        val future = new FutureTask[(Int, String, Map[String, String])] (() => getPageFromRemote(link))
                         threadPool.execute(future)
                         //获取网页信息
                         val pageContent = future.get(this.READ_TIME_OUT, TimeUnit.SECONDS)._2

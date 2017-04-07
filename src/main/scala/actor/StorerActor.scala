@@ -1,9 +1,17 @@
 package org.kevin.app.bookcrawler.actor
 
-// import akka.actor.Actor
-// import akka.actor.Props
-// import akka.actor.PoisonPill
+import akka.actor.{Actor, Props, PoisonPill}
+import scala.collection.mutable
 
-class StorerActor /*extends Actor*/ {
-    
+object StorerActor {
+    case class Saving(linksAndContent: mutable.HashMap[String, String])
+}
+
+class StorerActor extends Actor {
+
+    def receive = {
+        case StorerActor.Saving(linksAndContent: mutable.HashMap[String, String]) => {
+
+        }
+    }
 }

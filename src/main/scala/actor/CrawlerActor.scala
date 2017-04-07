@@ -1,9 +1,16 @@
 package org.kevin.app.bookcrawler.actor
 
-// import akka.actor.Actor
-// import akka.actor.Props
-// import akka.actor.PoisonPill
+import akka.actor.{Actor, Props, PoisonPill}
 
-class CrawlerActor /*extends Actor*/ {
+object CrawlerActor {
+    case class Crawing(url: String)
+}
 
+class CrawlerActor extends Actor {
+
+    def receive = {
+        case CrawlerActor.Crawing(url: String) => {
+
+        }
+    }
 }
