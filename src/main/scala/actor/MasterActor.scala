@@ -12,5 +12,15 @@ class MasterActor extends Actor {
         case MasterActor.Starting(basicUrl: String) => {
 
         }
+        case "start" => {
+            println("start MasterActor")
+            val actorRef = context.actorOf(Props[CrawlerActor],"CrawlerActor")
+            println("Master say hello to Crawler")
+            actorRef ! "hello"
+        }
+        case "over" => {
+            println("Master receive Crawler said")
+            self ! PoisonPill
+        }
     }
 }
