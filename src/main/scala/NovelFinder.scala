@@ -1,13 +1,13 @@
 package org.kevin.app.bookcrawler
 
-import org.kevin.app.bookcrawler._
+import org.kevin.app.bookcrawler.actor._
 
 import akka.actor.{Actor, ActorSystem, Props, PoisonPill}
 
 object MovelFinder {
   def main(args: Array[String]): Unit = {
     //val crawler = new Crawler2
-    // val basicUrl = "http://www.7caimi.com/xiaoshuo/13/"
+    val basicUrl = "http://www.7caimi.com/xiaoshuo/13/"
     // val crawlResult = crawler.crawl(basicUrl)
     // val result = crawler.parse(crawlResult._1, crawlResult._2, f => f.contains(basicUrl) && f != basicUrl)
     // println(result)
@@ -16,9 +16,9 @@ object MovelFinder {
 
         val system = ActorSystem("ActorSystem")
         val actorRef = system.actorOf(Props[actor.MasterActor], name = "MyActor")
-        actorRef ! "call the roll"
+        actorRef ! MasterActor.Starting(basicUrl)
 
         //system.shutdown
-        println("system.shutdown")
+        println("system runing")
   }
 }
