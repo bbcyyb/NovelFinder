@@ -14,9 +14,11 @@ object MovelFinder {
     
     //new SevenCaiMi(Set("大主宰")).process
 
-
         val system = ActorSystem("ActorSystem")
         val actorRef = system.actorOf(Props[actor.MasterActor], name = "MyActor")
-        actorRef ! "start"
+        actorRef ! "call the roll"
+
+        //system.shutdown
+        println("system.shutdown")
   }
 }

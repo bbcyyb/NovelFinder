@@ -1,12 +1,12 @@
 package org.kevin.app.bookcrawler.actor
 
-import akka.actor.{Actor, Props, PoisonPill}
+import akka.actor.{Actor, ActorPath, ActorRef, Props, PoisonPill}
 
 object CrawlerActor {
     case class Crawing(url: String)
 }
 
-class CrawlerActor extends Actor {
+class CrawlerActor(storerRef: ActorRef) extends Actor {
 
     def receive = {
         case "hello" => {
@@ -15,9 +15,15 @@ class CrawlerActor extends Actor {
             val actorRef = context.actorOf(Props[ParserActor],  "ParserActor")
             actorRef ! "hello"
         }
+        case "call the roll" => {
+            println(s"[CrawlerActor] ${self}")
+            storerRef ! self.toString
+
+        }
         case "over" => {
-            println("Master received")
-            self ! PoisonPill
+            println("Thread.sleep(100)")
+            Thread.sleep(100)
+            println("Crawler received")
         }
         case CrawlerActor.Crawing(url: String) => {
 

@@ -11,7 +11,7 @@ class ParserActor extends Actor {
     def receive = {
         case "hello" => {
             println("ParserActor")
-            println(self.parent)
+            println(self)
             sender ! "over"
         }
         case ParserActor.Parsing(hostName: String, htmlString: String) => {
