@@ -12,22 +12,14 @@ object StorerActor {
     val crawler = new Crawler2
 }
 
-class StorerActor(masterRef: ActorRef) extends Actor {
+class StorerActor(masterRefPath: String) extends Actor {
 
     val list = new mutable.ListBuffer[String]()
     val map = new mutable.HashMap[String,(String, String)]()
 
     def receive = {
-        case actorName: String => {
-            list += (actorName + ",")
-            println(list)
-            if(list.size == 3){
-                println(s"[StorerActor] ${masterRef}")
-                masterRef ! "over"
-            }
-        }
         case StorerActor.Collecting(url: String, section: (String, String)) => {
-            if(!map.containsKey(url)) {
+            if(!map.contains(url)) {
                 map += (url -> section)
             }
         }
@@ -36,6 +28,7 @@ class StorerActor(masterRef: ActorRef) extends Actor {
         }
         case StorerActor.Saving(linksAndContent: mutable.HashMap[String, String]) => {
 
+            context.actorSelection(masterRefPath) ! MasterActor.Ending()
         }        
     }
 }

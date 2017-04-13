@@ -3,21 +3,21 @@ package org.kevin.app.bookcrawler.actor
 import akka.actor.{Actor, ActorPath, ActorRef, Props, PoisonPill}
 import org.kevin.app.bookcrawler._
 
-object MasterActor {
+object MasterActor {  
     case class Starting(basicUrl: String)
 
-    def propsStorerActor(masterRef: ActorRef): Props = Props(new StorerActor(masterRef))
+    case class Ending()
 
-    def propsCrawlerActor(storerRef: ActorRef): Props = Props(new CrawlerActor(storerRef))
+    def propsCrawlerActor(masterPath: String): Props = Props(new CrawlerActor(masterPath))
+
+    var masterRefPath: String = ""
 }
 
 class MasterActor extends Actor {
 
-    val storerActorRef = context.actorOf(MasterActor.propsStorerActor(self),"StorerActor")
-
     def receive = {
 
-        case "over" => {
+        case MasterActor.Ending() => {
             println("Master received")
             println("System Shutdown!")
             context.system.shutdown
@@ -25,7 +25,7 @@ class MasterActor extends Actor {
         }
 
         case MasterActor.Starting(basicUrl: String) => {
-            val actorRef = context.actorOf(MasterActor.propsCrawlerActor(storerActorRef), name = s"CrawlerActor_basic")
+            val actorRef = context.actorOf(MasterActor.propsCrawlerActor(self.path.toString), name = "CrawlerActor_Basic")
             actorRef ! CrawlerActor.Crawling(basicUrl, basicUrl)
         }
     }

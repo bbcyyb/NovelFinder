@@ -4,18 +4,21 @@ import akka.actor.{Actor, ActorPath, ActorRef, Props, PoisonPill}
 import org.kevin.app.bookcrawler._
 
 object CrawlerActor {
-    case class Crawing(url: String, basicUrl: String)
+    case class Crawling(url: String, basicUrl: String)
+
+    def propsParserActor(masterPath: String): Props = Props(new ParserActor(masterPath))
 
     val crawler = new Crawler2
 }
 
-class CrawlerActor(storerRef: ActorRef) extends Actor {
+class CrawlerActor(masterRefPath: String) extends Actor {
 
     def receive = {
-        case CrawlerActor.Crawing(url: String, basicUrl: String) => {
+
+        case CrawlerActor.Crawling(url: String, basicUrl: String) => {
             val content = CrawlerActor.crawler.crawl(url)
-            val actorRef = context.actorOf(Props(new ParserActor),  "ParserActor_baslc")
-            actorRef ! ParserActor.Parsing(content._1, content._2, basicUrl)
+            val actorRef = context.actorOf(CrawlerActor.propsParserActor(masterRefPath),  "ParserActor_baslc")
+            actorRef ! ParserActor.Parsing(url, content, basicUrl)
         }
     }
 }

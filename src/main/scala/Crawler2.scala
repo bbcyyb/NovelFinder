@@ -16,11 +16,12 @@ class Crawler2 {
     def crawl(basicUrl: String) = {
         val html = Jsoup.connect(basicUrl).get().html
         val host = getHostBase(basicUrl)
-        (host, html)
+        html
     }
 
-    def parse(hostName: String, htmlString: String, linkFilter: (String => Boolean) = (url: String) => true): (String, String, List[String]) = {
+    def parse(currentUrl: String, htmlString: String, linkFilter: (String => Boolean) = (url: String) => true): (String, String, List[String]) = {
 
+        val hostName = getHostBase(currentUrl)
         val html = Jsoup.parse(htmlString)
         val c = html.select("div.chapter").first
         val title = if(c != null) c.select("h1").first.text else ""
