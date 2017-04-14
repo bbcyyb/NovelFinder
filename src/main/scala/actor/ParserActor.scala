@@ -6,15 +6,10 @@ import org.kevin.app.bookcrawler._
 object ParserActor {
     case class Parsing(url: String, htmlString: String, basicUrl: String)
 
-    var _singleStoreProps: ActorRef = null
-    def singleStoreProps(context: ActorContext, masterPath: String): ActorRef = {
-        if(_singleStoreProps == null) {
-            _singleStoreProps = context.actorOf(propsStorerActor(masterPath), "Store")
-        }
-        return _singleStoreProps
-    }
+    var storerActorRef: ActorRef = null
 
     def propsStorerActor(masterPath: String) = Props(new StorerActor(masterPath))
+    def propsCrawlerActor(masterPath: String) = Props(new CrawlerActor(masterPath))
 
     val crawler = new Crawler2
 }
@@ -30,7 +25,15 @@ class ParserActor(masterRefPath: String) extends Actor {
             val alinks = result._3
 
             if(!title.isEmpty && !content.isEmpty) {
-                ParserActor.singleStoreProps(context, masterRefPath) ! StorerActor.Collecting(url, (title, content))
+                if(ParserActor.storerActorRef == null) {
+                    ParserActor.storerActorRef = context.actorOf(ParserActor.propsStorerActor(masterRefPath), "StorerActor")
+                }
+                 ParserActor.storerActorRef ! StorerActor.Collecting(url, (title, content))
+            }
+
+            for(a <- alinks) {
+                val actorRef = context.actorOf(ParserActor.propsCrawlerActor(masterRefPath), name = "CrawlerActor_")
+                actorRef ! CrawlerActor.Crawling(a, basicUrl)
             }
         }
     }
