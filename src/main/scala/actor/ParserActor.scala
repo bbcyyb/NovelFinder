@@ -28,19 +28,21 @@ class ParserActor(masterRefPath: String) extends Actor {
             val content = result._2
             val alinks = result._3
 
+            if(ParserActor.storerActorRef == null) {
+                ParserActor.storerActorRef = context.actorOf(ParserActor.propsStorerActor(masterRefPath), "StorerActor")
+            }
+
             if(!title.isEmpty && !content.isEmpty) {
-                if(ParserActor.storerActorRef == null) {
-                    ParserActor.storerActorRef = context.actorOf(ParserActor.propsStorerActor(masterRefPath), "StorerActor")
-                }
                  ParserActor.storerActorRef ! StorerActor.Collecting(url, (title, content))
                  Common.log(s"${self.path.name} : Collecting => ${ParserActor.storerActorRef.path.name} %% url: ${url} | section.title: ${title} | selectin.content: ~)")
             }
 
-            for(a <- alinks) {
+            for(a <- alinks.distinct) {
                 ParserActor.storerActorRef ! StorerActor.Checking(a, basicUrl)
                 Common.log(s"${self.path.name} : Checking => ${ParserActor.storerActorRef.path.name} %% url: ${a} | basicUrl: ${basicUrl}")
             }
         }
+
         case ParserActor.UrlNonExisting(url: String, basicUrl: String) => {
             val uuid = UUID.randomUUID().toString()
             val actorRef = context.actorOf(ParserActor.propsCrawlerActor(masterRefPath), name = s"CrawlerActor_${uuid}")
