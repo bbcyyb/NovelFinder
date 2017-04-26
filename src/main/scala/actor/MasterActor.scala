@@ -1,7 +1,7 @@
 package org.kevin.app.bookcrawler.actor
 
 import akka.actor.{Actor, ActorPath, ActorRef, Props, PoisonPill}
-import org.kevin.app.bookcrawler._
+import org.kevin.app.bookcrawler.{Common}
 
 object MasterActor {  
     case class Starting(basicUrl: String)
@@ -27,6 +27,7 @@ class MasterActor extends Actor {
         case MasterActor.Starting(basicUrl: String) => {
             val actorRef = context.actorOf(MasterActor.propsCrawlerActor(self.path.toString), name = "CrawlerActor_Basic")
             actorRef ! CrawlerActor.Crawling(basicUrl, basicUrl)
+            Common.log(s"${self.path.name} : Crawling => ${actorRef.path.name} %% url: ${basicUrl} | basicUrl: ${basicUrl}")
         }
     }
 }
