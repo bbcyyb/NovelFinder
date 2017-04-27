@@ -20,5 +20,10 @@ class CommonSpec extends FunSpec {
         val result = Common.getIncreasingFileName(testFilePath, 3)
         assert(result == "~/Document/Novel/dzz_3.txt")
     }
+
+    it("getIncreasingFileName for 0 Identity") {
+        var result = Common.getIncreasingFileName(testFilePath, 0)
+        assert(result == "~/Document/Novel/dzz.txt")
+    }
   }
 }

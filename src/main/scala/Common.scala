@@ -31,11 +31,12 @@ object Common {
         return ""
     } 
 
-    def getIncreasingFileName(file: String, Id: Int) = {
+    def getIncreasingFileName(file: String, id: Int) = {
 
+        val sn = if(id == 0) "" else s"_${id.toString}"
         val fileName = getFileNameWithoutExtension(file)
         val extension = getExtension(file)
-        val result = s"${fileName}_${Id}.${extension}"
+        val result = s"${fileName}${sn}.${extension}"
         result
     }
 }
