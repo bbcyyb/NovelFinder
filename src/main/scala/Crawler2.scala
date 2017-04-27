@@ -3,6 +3,7 @@ package org.kevin.app.bookcrawler
 import scala.collection.JavaConversions._
 import scala.collection.mutable
 import java.net.URL
+import java.io._
 import org.jsoup.Jsoup
 
 class Crawler2 {
@@ -41,7 +42,16 @@ class Crawler2 {
         return (title, content, alinks)
     }
 
-    def store = {
+    def store(linksAndContent: mutable.HashMap[String, String], outputPath: String) = {
 
+        val writer = new BufferedWriter(new FileWriter(new File(outputPath)))
+
+        var iter = linksAndContent.keySet.toList.sorted.iterator
+        while(iter.hasNext) {
+            val value = linksAndContent.get(iter.next).get
+            writer.write(value)
+        }
+
+        writer.close()
     }
 }
