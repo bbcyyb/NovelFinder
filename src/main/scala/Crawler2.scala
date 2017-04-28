@@ -8,7 +8,7 @@ import org.jsoup.Jsoup
 
 class Crawler2 {
 
-    private val TIME_OUT: Int = 8000
+    private val TIME_OUT: Int = 18000
 
     private def getHostBase(url: String) = {
         val uri = new URL(url)
@@ -23,7 +23,7 @@ class Crawler2 {
             try {
                 html = Jsoup.connect(basicUrl).maxBodySize(0).timeout(TIME_OUT).get().html
             } catch {
-                case e: Exception => println("exception caught: " + e)
+                case e: Exception => println(s"exception caught: ${e}, url: ${basicUrl}")
             }
         }
         html
@@ -59,6 +59,8 @@ class Crawler2 {
             val increasedOutputPath = Common.getIncreasingFileName(outputPath, counter)
             file = new File(increasedOutputPath)    
         } while(file.exists())
+
+        //TODO: 由于上面的逻辑，文件必定不存在，所以这里需要先创建文件，再打开句柄
 
         val writer = new BufferedWriter(new FileWriter(file))
 
