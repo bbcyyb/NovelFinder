@@ -21,7 +21,7 @@ class CrawlerActor(masterRefPath: String) extends Actor {
             val uuid = UUID.randomUUID().toString()
             val actorRef = context.actorOf(CrawlerActor.propsParserActor(masterRefPath), s"ParserActor_${uuid}")
             actorRef ! ParserActor.Parsing(url, content, basicUrl)
-            Common.log(s"${self.path.name} : Parsing => ${actorRef.path.name} %% url: ${url}, htmlString: ~, basicUrl: ${basicUrl})")
+            //Common.log(s"${self.path.name} : Parsing => ${actorRef.path.name} %% url: ${url}, htmlString: ~, basicUrl: ${basicUrl})")
         }
     }
 }

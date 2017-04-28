@@ -8,6 +8,8 @@ import org.jsoup.Jsoup
 
 class Crawler2 {
 
+    private val TIME_OUT: Int = 8000
+
     private def getHostBase(url: String) = {
         val uri = new URL(url)
         val portPart = if(uri.getPort() == -1 || uri.getPort() == 80) "" else ":" + uri.getPort()
@@ -15,8 +17,15 @@ class Crawler2 {
     }
 
     def crawl(basicUrl: String) = {
-        val html = Jsoup.connect(basicUrl).get().html
-        val host = getHostBase(basicUrl)
+        var html: String = s"url: ${basicUrl} 访问失败"
+        // 三次访问，如果失败，则不再继续处理
+        for(i <- (1 to 3)) {
+            try {
+                html = Jsoup.connect(basicUrl).maxBodySize(0).timeout(TIME_OUT).get().html
+            } catch {
+                case e: Exception => println("exception caught: " + e)
+            }
+        }
         html
     }
 
@@ -44,7 +53,14 @@ class Crawler2 {
 
     def store(linksAndContent: mutable.HashMap[String, String], outputPath: String) = {
 
-        val writer = new BufferedWriter(new FileWriter(new File(outputPath)))
+        var counter: Int = 0
+        var file: File = null
+        do {
+            val increasedOutputPath = Common.getIncreasingFileName(outputPath, counter)
+            file = new File(increasedOutputPath)    
+        } while(file.exists())
+
+        val writer = new BufferedWriter(new FileWriter(file))
 
         var iter = linksAndContent.keySet.toList.sorted.iterator
         while(iter.hasNext) {

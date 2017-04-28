@@ -33,13 +33,14 @@ class ParserActor(masterRefPath: String) extends Actor {
             }
 
             if(!title.isEmpty && !content.isEmpty) {
-                 ParserActor.storerActorRef ! StorerActor.Collecting(url, (title, content))
-                 Common.log(s"${self.path.name} : Collecting => ${ParserActor.storerActorRef.path.name} %% url: ${url} | section.title: ${title} | selectin.content: ~)")
+                val section = s"${title}\n${content}\n\n"
+                ParserActor.storerActorRef ! StorerActor.Collecting(url, section)
+                //Common.log(s"${self.path.name} : Collecting => ${ParserActor.storerActorRef.path.name} %% url: ${url} | section.title: ~ | selectin.content: ~)")
             }
 
             for(a <- alinks.distinct) {
                 ParserActor.storerActorRef ! StorerActor.Checking(a, basicUrl)
-                Common.log(s"${self.path.name} : Checking => ${ParserActor.storerActorRef.path.name} %% url: ${a} | basicUrl: ${basicUrl}")
+                //Common.log(s"${self.path.name} : Checking => ${ParserActor.storerActorRef.path.name} %% url: ${a} | basicUrl: ${basicUrl}")
             }
         }
 
@@ -47,7 +48,7 @@ class ParserActor(masterRefPath: String) extends Actor {
             val uuid = UUID.randomUUID().toString()
             val actorRef = context.actorOf(ParserActor.propsCrawlerActor(masterRefPath), name = s"CrawlerActor_${uuid}")
             actorRef ! CrawlerActor.Crawling(url, basicUrl)
-            Common.log(s"${self.path.name} : Crawling => ${actorRef.path.name} %% url: ${url} | basicUrl: ${basicUrl}")
+            //Common.log(s"${self.path.name} : Crawling => ${actorRef.path.name} %% url: ${url} | basicUrl: ${basicUrl}")
         }
     }
 }
