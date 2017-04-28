@@ -11,7 +11,7 @@ object StorerActor {
     case class CounterReducing()
 
     val crawler = new Crawler2
-    val saveAs: String = "~/Documents/Novel/DaZhuZai.txt"
+    val saveAs: String = "/Users/ky54/Documents/Novel/DaZhuZai.txt"
 }
 
 class StorerActor(masterRefPath: String) extends Actor {

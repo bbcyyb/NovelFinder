@@ -55,13 +55,13 @@ class Crawler2 {
 
         var counter: Int = 0
         var file: File = null
+        var increasedOutputPath: String = ""
         do {
-            val increasedOutputPath = Common.getIncreasingFileName(outputPath, counter)
+            increasedOutputPath = Common.getIncreasingFileName(outputPath, counter)
             file = new File(increasedOutputPath)    
         } while(file.exists())
-
-        //TODO: 由于上面的逻辑，文件必定不存在，所以这里需要先创建文件，再打开句柄
-
+        Common.log(s"current file path is ${increasedOutputPath}")
+        file.createNewFile()
         val writer = new BufferedWriter(new FileWriter(file))
 
         var iter = linksAndContent.keySet.toList.sorted.iterator
