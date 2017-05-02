@@ -3,27 +3,41 @@ package org.kevin.app.bookcrawler
 import org.scalatest.FunSpec
 
 class CommonSpec extends FunSpec {
-  describe("File Path Test") {
-    val testFilePath = "~/Document/Novel/dzz.txt"
+  describe("Common static object") {
+    val testFilePath = "/Users/ky54/Documents/Novel/DaZhuZai.txt"
 
-    it("getFileNameWithoutExtension") {
+    describe(s"Get fileName without extension from ${testFilePath}") {
+        val expected = "/Users/ky54/Documents/Novel/DaZhuZai"
         val result = Common.getFileNameWithoutExtension(testFilePath)
-        assert(result == "~/Document/Novel/dzz")
+        it(s"Should equal ${expected}") {
+            assert(result == expected)
+        }
     }
 
-    it("getExtension") {
+    describe(s"Get file extension from ${testFilePath}") {
+        val expected = "txt"
         val result = Common.getExtension(testFilePath)
-        assert(result == "txt")
+        it(s"Should equal ${expected}") {
+            assert(result == expected)
+        }
     }
 
-    it("getIncreasingFileName") {
-        val result = Common.getIncreasingFileName(testFilePath, 3)
-        assert(result == "~/Document/Novel/dzz_3.txt")
+    val id0 = 0
+    describe(s"Get increasing fileName(id: ${id0}) from ${testFilePath}") {
+        val expected = "/Users/ky54/Documents/Novel/DaZhuZai.txt"
+        val result = Common.getIncreasingFileName(testFilePath, id0)
+        it(s"Should equial ${expected}"){
+            assert(result == expected)
+        }
     }
 
-    it("getIncreasingFileName for 0 Identity") {
-        var result = Common.getIncreasingFileName(testFilePath, 0)
-        assert(result == "~/Document/Novel/dzz.txt")
+    val id3 = 3
+    describe(s"Get increasing fileName(id: ${id3}) from ${testFilePath}") {
+        val expected = "/Users/ky54/Documents/Novel/DaZhuZai_3.txt"
+        val result = Common.getIncreasingFileName(testFilePath, id3)
+        it(s"Should equial ${expected}"){
+            assert(result == expected)
+        }
     }
   }
 }
