@@ -57,13 +57,13 @@ class Crawler2 {
         return (title, content, alinks)
     }
 
-    def store(linksAndContent: mutable.HashMap[String, String], outputPath: String) = {
+    def store(linksAndContent: mutable.HashMap[String, String], storePath: String) = {
 
         var counter: Int = 0
         var file: File = null
         var increasedOutputPath: String = ""
         do {
-            increasedOutputPath = Common.getIncreasingFileName(outputPath, counter)
+            increasedOutputPath = Common.getIncreasingFileName(storePath, counter)
             file = new File(increasedOutputPath)    
         } while(file.exists())
         Common.log(s"current file path is ${increasedOutputPath}")
