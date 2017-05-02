@@ -9,6 +9,7 @@ import org.jsoup.Jsoup
 class Crawler2 {
 
     private val TIME_OUT: Int = 18000
+    private var rootUrl: String = _
 
     private def getHostBase(url: String) = {
         val uri = new URL(url)
@@ -17,9 +18,14 @@ class Crawler2 {
     }
 
     def crawl(basicUrl: String) = {
+
+        if(rootUrl == null) {
+            rootUrl = basicUrl
+        }
+
         var html: String = s"url: ${basicUrl} 访问失败"
-        // 三次访问，如果失败，则不再继续处理
-        for(i <- (1 to 3)) {
+        // 最多五次访问，如果失败，则不再继续处理
+        for(i <- (1 to 5)) {
             try {
                 html = Jsoup.connect(basicUrl).maxBodySize(0).timeout(TIME_OUT).get().html
             } catch {
@@ -29,7 +35,7 @@ class Crawler2 {
         html
     }
 
-    def parse(currentUrl: String, htmlString: String, linkFilter: (String => Boolean) = (url: String) => true): (String, String, List[String]) = {
+    def parse(currentUrl: String, htmlString: String, linkFilter: ((String, String) => Boolean)): (String, String, List[String]) = {
 
         val hostName = getHostBase(currentUrl)
         val html = Jsoup.parse(htmlString)
@@ -46,7 +52,7 @@ class Crawler2 {
                 case link if link.startsWith("http://") || link.startsWith("https://") => link
                 case _ => link
             }
-            ).filter(linkFilter).toList
+            ).filter(linkFilter(_, rootUrl)).toList
         
         return (title, content, alinks)
     }

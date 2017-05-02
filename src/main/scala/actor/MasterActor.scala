@@ -31,8 +31,7 @@ class MasterActor extends Actor {
         case MasterActor.Starting(basicUrl: String) => {
             MasterActor.startTime = Common.nanoTime
             val actorRef = context.actorOf(MasterActor.propsCrawlerActor(self.path.toString), name = "CrawlerActor_Basic")
-            actorRef ! CrawlerActor.Crawling(basicUrl, basicUrl)
-            //Common.log(s"${self.path.name} : Crawling => ${actorRef.path.name} %% url: ${basicUrl} | basicUrl: ${basicUrl}")
+            actorRef ! CrawlerActor.Crawling(basicUrl)
         }
     }
 }

@@ -7,7 +7,7 @@ import org.kevin.app.bookcrawler.{Crawler2, Common}
 object StorerActor {
     case class Saving()
     case class Collecting(url: String, section: String)
-    case class Checking(url: String, basicUrl: String)
+    case class Checking(url: String)
     case class CounterReducing()
 
     val crawler = new Crawler2
@@ -36,12 +36,12 @@ class StorerActor(masterRefPath: String) extends Actor {
 
         }
 
-        case StorerActor.Checking(url: String, basicUrl: String) => {
+        case StorerActor.Checking(url: String) => {
             if(!map.contains(url)) {
                 map += (url -> "")
                 counter += 1
                 Common.log(s"counter ++: ${counter}")
-                sender() ! ParserActor.UrlNonExisting(url, basicUrl)
+                sender() ! ParserActor.UrlNonExisting(url)
             } else {
                 //Common.log(s"${self.path.name} : has already Existed in => ${sender().path.name} %% url: ${url} | basicUrl： ${basicUrl})")
             }

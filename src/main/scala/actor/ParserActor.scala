@@ -6,9 +6,9 @@ import java.util.UUID
 
 object ParserActor {
     // 解析当前html content中的内容和链接
-    case class Parsing(url: String, htmlString: String, basicUrl: String)
+    case class Parsing(url: String, htmlString: String)
     // 如果当前URL还未被爬取过，那么交由CrawlerActor继续爬取
-    case class UrlNonExisting(url: String, basicUrl: String)
+    case class UrlNonExisting(url: String)
 
     var storerActorRef: ActorRef = null
 
@@ -22,8 +22,8 @@ class ParserActor(masterRefPath: String) extends Actor {
 
     def receive = {
 
-        case ParserActor.Parsing(url: String, htmlString: String, basicUrl: String) => {
-            val result = ParserActor.crawler.parse(url, htmlString, f => f.contains(basicUrl) && f != basicUrl)
+        case ParserActor.Parsing(url: String, htmlString: String) => {
+            val result = ParserActor.crawler.parse(url, htmlString, (f,basicUrl) => f.contains(basicUrl) && f != basicUrl)
             val title = result._1
             val content = result._2
             val alinks = result._3
@@ -35,20 +35,17 @@ class ParserActor(masterRefPath: String) extends Actor {
             if(!title.isEmpty && !content.isEmpty) {
                 val section = s"${title}\n${content}\n\n"
                 ParserActor.storerActorRef ! StorerActor.Collecting(url, section)
-                //Common.log(s"${self.path.name} : Collecting => ${ParserActor.storerActorRef.path.name} %% url: ${url} | section.title: ~ | selectin.content: ~)")
             }
 
             for(a <- alinks.distinct) {
-                ParserActor.storerActorRef ! StorerActor.Checking(a, basicUrl)
-                //Common.log(s"${self.path.name} : Checking => ${ParserActor.storerActorRef.path.name} %% url: ${a} | basicUrl: ${basicUrl}")
+                ParserActor.storerActorRef ! StorerActor.Checking(a)
             }
         }
 
-        case ParserActor.UrlNonExisting(url: String, basicUrl: String) => {
+        case ParserActor.UrlNonExisting(url: String) => {
             val uuid = UUID.randomUUID().toString()
             val actorRef = context.actorOf(ParserActor.propsCrawlerActor(masterRefPath), name = s"CrawlerActor_${uuid}")
-            actorRef ! CrawlerActor.Crawling(url, basicUrl)
-            //Common.log(s"${self.path.name} : Crawling => ${actorRef.path.name} %% url: ${url} | basicUrl: ${basicUrl}")
+            actorRef ! CrawlerActor.Crawling(url)
         }
     }
 }
