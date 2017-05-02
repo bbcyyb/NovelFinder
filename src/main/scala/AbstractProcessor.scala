@@ -11,7 +11,7 @@ abstract class AbstractProcessor(crawler: Crawler2) {
     }
 
     def parse(currentUrl: String, htmlString: String): (String, List[String]) = {
-        val parseResult = crawler.parse(currentUrl, htmlString, scopeFilter)
+        val parseResult = crawler.parse(currentUrl, htmlString, scopeFilter, extractContentAndLinks)
         val title = parseResult._1
         val content = parseResult._2
         val alinks = parseResult._3

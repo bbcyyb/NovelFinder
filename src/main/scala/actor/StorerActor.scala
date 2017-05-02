@@ -2,19 +2,16 @@ package org.kevin.app.bookcrawler.actor
 
 import akka.actor.{Actor, ActorPath, ActorRef, Props, PoisonPill}
 import scala.collection.mutable
-import org.kevin.app.bookcrawler.{Crawler2, Common}
+import org.kevin.app.bookcrawler.{AbstractProcessor, Common}
 
 object StorerActor {
     case class Saving()
     case class Collecting(url: String, section: String)
     case class Checking(url: String)
     case class CounterReducing()
-
-    val crawler = new Crawler2
-    val saveAs: String = "/Users/ky54/Documents/Novel/DaZhuZai.txt"
 }
 
-class StorerActor(masterRefPath: String) extends Actor {
+class StorerActor(processor:AbstractProcessor, masterRefPath: String) extends Actor {
 
     val list = new mutable.ListBuffer[String]()
     val map = new mutable.HashMap[String,String]()
@@ -48,7 +45,7 @@ class StorerActor(masterRefPath: String) extends Actor {
         }
 
         case StorerActor.Saving() => {
-            StorerActor.crawler.store(map, StorerActor.saveAs)
+            processor.store(map)
             context.actorSelection(masterRefPath) ! MasterActor.Ending()
         }        
     }

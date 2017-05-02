@@ -35,23 +35,20 @@ class Crawler2 {
         html
     }
 
-    def parse(currentUrl: String, htmlString: String, linkFilter: ((String, String) => Boolean)): (String, String, List[String]) = {
+    def parse(currentUrl: String, htmlString: String, linkFilter: ((String, String) => Boolean), extractContentAndLinks: String => (String, String, List[String])): (String, String, List[String]) = {
 
         val hostName = getHostBase(currentUrl)
-        val html = Jsoup.parse(htmlString)
-        val c = html.select("div.chapter").first
-        val title = if(c != null) c.select("h1").first.text else ""
-        val content = if(c != null) c.select("div").first.html else ""
-        val alinks = html.select("a[href]").map(_.attr("href")).filter(
+        val extractResult = extractContentAndLinks(htmlString)
+        val title = extractResult._1
+        val content = extractResult._2
+        val alinks = extractResult._3.filter(
             link => !link.startsWith("javascript:")
-            ).map(
-            link =>
-            link match {
-                case link if link.startsWith("//") => "http://" + link
-                case link if link.startsWith("/") => hostName + link
-                case link if link.startsWith("http://") || link.startsWith("https://") => link
-                case _ => link
-            }
+            ).map( link => link match {
+                                case link if link.startsWith("//") => "http://" + link
+                                case link if link.startsWith("/") => hostName + link
+                                case link if link.startsWith("http://") || link.startsWith("https://") => link
+                                case _ => link
+                            }
             ).filter(linkFilter(_, rootUrl)).toList
         
         return (title, content, alinks)

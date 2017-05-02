@@ -15,7 +15,8 @@ object MovelFinder {
     //new SevenCaiMi(Set("大主宰")).process
 
         val system = ActorSystem("ActorSystem")
-        val actorRef = system.actorOf(Props[actor.MasterActor], name = "MyActor")
+        val processor: AbstractProcessor = new SevenCaiMi2Processor(new Crawler2)
+        val actorRef = system.actorOf(Props(new MasterActor(processor)), name = "MyActor")
         actorRef ! MasterActor.Starting(basicUrl)
 
         //system.shutdown

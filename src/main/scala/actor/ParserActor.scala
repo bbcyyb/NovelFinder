@@ -1,7 +1,7 @@
 package org.kevin.app.bookcrawler.actor
 
 import akka.actor.{Actor, ActorContext, ActorPath, ActorRef, Props, PoisonPill}
-import org.kevin.app.bookcrawler.{Crawler2, Common}
+import org.kevin.app.bookcrawler.{AbstractProcessor, Common}
 import java.util.UUID
 
 object ParserActor {
@@ -12,28 +12,24 @@ object ParserActor {
 
     var storerActorRef: ActorRef = null
 
-    def propsStorerActor(masterPath: String) = Props(new StorerActor(masterPath))
-    def propsCrawlerActor(masterPath: String) = Props(new CrawlerActor(masterPath))
-
-    val crawler = new Crawler2
+    def propsStorerActor(processor: AbstractProcessor, masterPath: String) = Props(new StorerActor(processor, masterPath))
+    def propsCrawlerActor(processor: AbstractProcessor, masterPath: String) = Props(new CrawlerActor(processor, masterPath))
 }
 
-class ParserActor(masterRefPath: String) extends Actor {
+class ParserActor(processor: AbstractProcessor, masterRefPath: String) extends Actor {
 
     def receive = {
 
         case ParserActor.Parsing(url: String, htmlString: String) => {
-            val result = ParserActor.crawler.parse(url, htmlString, (f,basicUrl) => f.contains(basicUrl) && f != basicUrl)
-            val title = result._1
-            val content = result._2
-            val alinks = result._3
+            val result = processor.parse(url, htmlString)
+            val section = result._1
+            val alinks = result._2
 
             if(ParserActor.storerActorRef == null) {
-                ParserActor.storerActorRef = context.actorOf(ParserActor.propsStorerActor(masterRefPath), "StorerActor")
+                ParserActor.storerActorRef = context.actorOf(ParserActor.propsStorerActor(processor, masterRefPath), "StorerActor")
             }
 
-            if(!title.isEmpty && !content.isEmpty) {
-                val section = s"${title}\n${content}\n\n"
+            if(!section.isEmpty) {
                 ParserActor.storerActorRef ! StorerActor.Collecting(url, section)
             }
 
@@ -44,7 +40,7 @@ class ParserActor(masterRefPath: String) extends Actor {
 
         case ParserActor.UrlNonExisting(url: String) => {
             val uuid = UUID.randomUUID().toString()
-            val actorRef = context.actorOf(ParserActor.propsCrawlerActor(masterRefPath), name = s"CrawlerActor_${uuid}")
+            val actorRef = context.actorOf(ParserActor.propsCrawlerActor(processor, masterRefPath), name = s"CrawlerActor_${uuid}")
             actorRef ! CrawlerActor.Crawling(url)
         }
     }
