@@ -1,6 +1,6 @@
 package org.kevin.app.bookcrawler
 
-import org.scalatest._
+import org.scalatest.{FunSpec, PrivateMethodTester}
 
 class Crawler2Spec extends FunSpec with PrivateMethodTester {
   describe("Crawler2 class") {
@@ -25,5 +25,4 @@ class Crawler2Spec extends FunSpec with PrivateMethodTester {
       }
     }
   }
-
 }

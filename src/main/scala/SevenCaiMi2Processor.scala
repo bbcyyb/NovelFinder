@@ -12,15 +12,15 @@ class SevenCaiMi2Processor(crawler: Crawler2) extends AbstractProcessor(crawler)
         val htmlObj = Jsoup.parse(html)
         val c = htmlObj.select("div.chapter").first
         val title = if(c != null) c.select("h1").first.text else ""
-        val content = if(c != null) c.select("div").first.html else ""
+        val content = if(c != null) c.select(".chapter div").first.html else ""
         val alinks = htmlObj.select("a[href]").map(_.attr("href")).toList
         return (title, content, alinks)
     }
 
     override def purifyTitleAndContent(title: String, content: String): String = {
-        val contentAfter = content.replaceAll("<br />","\n")
-                                .replaceAll("<br />|&nbsp;+|\t+", "")
-                                .replaceAll("""<[a-zA-Z]+(\s+[a-zA-Z]+\s*=\s*("([^"]*)"|'([^']*)'))*\s*/>""", "")
+        val contentAfter = content.replaceAll("(<br />|<br>)+","\n")
+                                .replaceAll("&nbsp;+|\t+", " ")
+                                .replaceAll("""<[^>]*>""", "")
 
             s"${title}\n${contentAfter}\n\n"
     }

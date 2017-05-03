@@ -61,7 +61,8 @@ class Crawler2 {
         var increasedOutputPath: String = ""
         do {
             increasedOutputPath = Common.getIncreasingFileName(storePath, counter)
-            file = new File(increasedOutputPath)    
+            file = new File(increasedOutputPath)
+            counter += 1    
         } while(file.exists())
         Common.log(s"current file path is ${increasedOutputPath}")
         file.createNewFile()
