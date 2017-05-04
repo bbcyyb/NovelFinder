@@ -6,7 +6,7 @@ import scala.collection.JavaConversions._
 
 class SevenCaiMi2Processor(crawler: Crawler2) extends AbstractProcessor(crawler) {
 
-    override var storePath = "/Users/ky54/Documents/Novel/DaZhuZai.txt"
+    override var storePath = "/Users/ky54/Documents/Novel/Jueshishenyi.txt"
 
     override protected def extractContentAndLinks(html: String): (String, String, List[String]) = {
         val htmlObj = Jsoup.parse(html)
@@ -19,7 +19,7 @@ class SevenCaiMi2Processor(crawler: Crawler2) extends AbstractProcessor(crawler)
 
     override def purifyTitleAndContent(title: String, content: String): String = {
         val contentAfter = content.replaceAll("(<br />|<br>)+","\n")
-                                .replaceAll("&nbsp;+|\t+", " ")
+                                .replaceAll("&nbsp;+|\t+", "")
                                 .replaceAll("""<[^>]*>""", "")
 
             s"${title}\n${contentAfter}\n\n"
